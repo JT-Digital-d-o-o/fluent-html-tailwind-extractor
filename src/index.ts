@@ -295,6 +295,78 @@ const METHOD_PATTERNS: MethodPattern[] = [
     classPrefix: "tracking",
     generateClass: (args) => args.length === 1 ? [`tracking-${args[0]}`] : [],
   },
+  // Pointer Events
+  {
+    methodName: "pointerEvents",
+    classPrefix: "pointer-events",
+    generateClass: (args) => args.length === 1 ? [`pointer-events-${args[0]}`] : [],
+  },
+  // Top
+  {
+    methodName: "top",
+    classPrefix: "top",
+    generateClass: (args) => args.length === 1 ? [`top-${args[0]}`] : [],
+  },
+  // Right
+  {
+    methodName: "right",
+    classPrefix: "right",
+    generateClass: (args) => args.length === 1 ? [`right-${args[0]}`] : [],
+  },
+  // Bottom
+  {
+    methodName: "bottom",
+    classPrefix: "bottom",
+    generateClass: (args) => args.length === 1 ? [`bottom-${args[0]}`] : [],
+  },
+  // Left
+  {
+    methodName: "left",
+    classPrefix: "left",
+    generateClass: (args) => args.length === 1 ? [`left-${args[0]}`] : [],
+  },
+  // Inset
+  {
+    methodName: "inset",
+    classPrefix: "inset",
+    generateClass: (args) => args.length === 1 ? [`inset-${args[0]}`] : [],
+  },
+  // Transition
+  {
+    methodName: "transition",
+    classPrefix: "transition",
+    generateClass: (args) => args.length === 0 ? ["transition"] : [`transition-${args[0]}`],
+  },
+  // Duration
+  {
+    methodName: "duration",
+    classPrefix: "duration",
+    generateClass: (args) => args.length === 1 ? [`duration-${args[0]}`] : [],
+  },
+  // Ring
+  {
+    methodName: "ring",
+    classPrefix: "ring",
+    generateClass: (args) => args.length === 0 ? ["ring"] : [`ring-${args[0]}`],
+  },
+  // Ring Color
+  {
+    methodName: "ringColor",
+    classPrefix: "ring",
+    generateClass: (args) => args.length === 1 ? [`ring-${args[0]}`] : [],
+  },
+  // Outline
+  {
+    methodName: "outline",
+    classPrefix: "outline",
+    generateClass: (args) => args.length === 0 ? ["outline"] : [`outline-${args[0]}`],
+  },
+  // Scale
+  {
+    methodName: "scale",
+    classPrefix: "scale",
+    generateClass: (args) => args.length === 1 ? [`scale-${args[0]}`] : [],
+  },
 ];
 
 /**
