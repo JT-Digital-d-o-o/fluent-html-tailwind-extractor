@@ -1,395 +1,353 @@
 /**
  * Tailwind CSS content extractor for fluent-html
- * Extracts Tailwind classes from SwiftUI-style method calls
+ * Extracts Tailwind classes from fluent method calls
  */
 
 interface MethodPattern {
   methodName: string;
-  classPrefix: string;
-  // Function to generate class from captured arguments
   generateClass: (args: string[]) => string[];
 }
 
+const dirMap: Record<string, string> = {
+  x: "x", y: "y",
+  top: "t", bottom: "b", left: "l", right: "r",
+  t: "t", b: "b", l: "l", r: "r",
+};
+
 const METHOD_PATTERNS: MethodPattern[] = [
-  // Padding
+  // --- Spacing ---
   {
     methodName: "padding",
-    classPrefix: "p",
     generateClass: (args) => {
-      if (args.length === 1) {
-        return [`p-${args[0]}`];
-      }
+      if (args.length === 1) return [`p-${args[0]}`];
       if (args.length === 2) {
-        const dirMap: Record<string, string> = {
-          x: "x", y: "y",
-          top: "t", bottom: "b", left: "l", right: "r",
-          t: "t", b: "b", l: "l", r: "r",
-        };
         const dir = dirMap[args[0]] || args[0];
         return [`p${dir}-${args[1]}`];
       }
       return [];
     },
   },
-  // Margin
   {
     methodName: "margin",
-    classPrefix: "m",
     generateClass: (args) => {
-      if (args.length === 1) {
-        return [`m-${args[0]}`];
-      }
+      if (args.length === 1) return [`m-${args[0]}`];
       if (args.length === 2) {
-        const dirMap: Record<string, string> = {
-          x: "x", y: "y",
-          top: "t", bottom: "b", left: "l", right: "r",
-          t: "t", b: "b", l: "l", r: "r",
-        };
         const dir = dirMap[args[0]] || args[0];
         return [`m${dir}-${args[1]}`];
       }
       return [];
     },
   },
-  // Background
-  {
-    methodName: "background",
-    classPrefix: "bg",
-    generateClass: (args) => args.length === 1 ? [`bg-${args[0]}`] : [],
-  },
-  // Text Color
-  {
-    methodName: "textColor",
-    classPrefix: "text",
-    generateClass: (args) => args.length === 1 ? [`text-${args[0]}`] : [],
-  },
-  // Text Size
-  {
-    methodName: "textSize",
-    classPrefix: "text",
-    generateClass: (args) => args.length === 1 ? [`text-${args[0]}`] : [],
-  },
-  // Text Align
-  {
-    methodName: "textAlign",
-    classPrefix: "text",
-    generateClass: (args) => args.length === 1 ? [`text-${args[0]}`] : [],
-  },
-  // Font Weight
-  {
-    methodName: "fontWeight",
-    classPrefix: "font",
-    generateClass: (args) => args.length === 1 ? [`font-${args[0]}`] : [],
-  },
-  // Width
-  {
-    methodName: "w",
-    classPrefix: "w",
-    generateClass: (args) => args.length === 1 ? [`w-${args[0]}`] : [],
-  },
-  // Height
-  {
-    methodName: "h",
-    classPrefix: "h",
-    generateClass: (args) => args.length === 1 ? [`h-${args[0]}`] : [],
-  },
-  // Max Width
-  {
-    methodName: "maxW",
-    classPrefix: "max-w",
-    generateClass: (args) => args.length === 1 ? [`max-w-${args[0]}`] : [],
-  },
-  // Min Width
-  {
-    methodName: "minW",
-    classPrefix: "min-w",
-    generateClass: (args) => args.length === 1 ? [`min-w-${args[0]}`] : [],
-  },
-  // Max Height
-  {
-    methodName: "maxH",
-    classPrefix: "max-h",
-    generateClass: (args) => args.length === 1 ? [`max-h-${args[0]}`] : [],
-  },
-  // Min Height
-  {
-    methodName: "minH",
-    classPrefix: "min-h",
-    generateClass: (args) => args.length === 1 ? [`min-h-${args[0]}`] : [],
-  },
-  // Flex
-  {
-    methodName: "flex",
-    classPrefix: "flex",
-    generateClass: (args) => args.length === 0 ? ["flex"] : [`flex-${args[0]}`],
-  },
-  // Flex Direction
-  {
-    methodName: "flexDirection",
-    classPrefix: "flex",
-    generateClass: (args) => args.length === 1 ? [`flex-${args[0]}`] : [],
-  },
-  // Justify Content
-  {
-    methodName: "justifyContent",
-    classPrefix: "justify",
-    generateClass: (args) => args.length === 1 ? [`justify-${args[0]}`] : [],
-  },
-  // Align Items
-  {
-    methodName: "alignItems",
-    classPrefix: "items",
-    generateClass: (args) => args.length === 1 ? [`items-${args[0]}`] : [],
-  },
-  // Gap
   {
     methodName: "gap",
-    classPrefix: "gap",
     generateClass: (args) => {
-      if (args.length === 1) {
-        return [`gap-${args[0]}`];
-      }
-      if (args.length === 2) {
-        return [`gap-${args[0]}-${args[1]}`];
-      }
+      if (args.length === 1) return [`gap-${args[0]}`];
+      if (args.length === 2) return [`gap-${args[0]}-${args[1]}`];
       return [];
     },
   },
-  // Grid
   {
-    methodName: "grid",
-    classPrefix: "grid",
-    generateClass: () => ["grid"],
+    methodName: "spaceX",
+    generateClass: (args) => args.length === 1 ? [`space-x-${args[0]}`] : [],
   },
-  // Grid Columns
   {
-    methodName: "gridCols",
-    classPrefix: "grid-cols",
-    generateClass: (args) => args.length === 1 ? [`grid-cols-${args[0]}`] : [],
+    methodName: "spaceY",
+    generateClass: (args) => args.length === 1 ? [`space-y-${args[0]}`] : [],
   },
-  // Grid Rows
+
+  // --- Colors ---
   {
-    methodName: "gridRows",
-    classPrefix: "grid-rows",
-    generateClass: (args) => args.length === 1 ? [`grid-rows-${args[0]}`] : [],
+    methodName: "background",
+    generateClass: (args) => args.length === 1 ? [`bg-${args[0]}`] : [],
   },
-  // Border
   {
-    methodName: "border",
-    classPrefix: "border",
-    generateClass: (args) => args.length === 0 ? ["border"] : [`border-${args[0]}`],
+    methodName: "textColor",
+    generateClass: (args) => args.length === 1 ? [`text-${args[0]}`] : [],
   },
-  // Border Color
   {
     methodName: "borderColor",
-    classPrefix: "border",
     generateClass: (args) => args.length === 1 ? [`border-${args[0]}`] : [],
   },
-  // Rounded
   {
-    methodName: "rounded",
-    classPrefix: "rounded",
-    generateClass: (args) => args.length === 0 ? ["rounded"] : [`rounded-${args[0]}`],
+    methodName: "ringColor",
+    generateClass: (args) => args.length === 1 ? [`ring-${args[0]}`] : [],
   },
-  // Shadow
+
+  // --- Typography ---
   {
-    methodName: "shadow",
-    classPrefix: "shadow",
-    generateClass: (args) => args.length === 0 ? ["shadow"] : [`shadow-${args[0]}`],
+    methodName: "textSize",
+    generateClass: (args) => args.length === 1 ? [`text-${args[0]}`] : [],
   },
-  // Opacity
   {
-    methodName: "opacity",
-    classPrefix: "opacity",
-    generateClass: (args) => args.length === 1 ? [`opacity-${args[0]}`] : [],
+    methodName: "textAlign",
+    generateClass: (args) => args.length === 1 ? [`text-${args[0]}`] : [],
   },
-  // Cursor
   {
-    methodName: "cursor",
-    classPrefix: "cursor",
-    generateClass: (args) => args.length === 1 ? [`cursor-${args[0]}`] : [],
+    methodName: "fontWeight",
+    generateClass: (args) => args.length === 1 ? [`font-${args[0]}`] : [],
   },
-  // Position
+  { methodName: "bold", generateClass: () => ["font-bold"] },
+  { methodName: "italic", generateClass: () => ["italic"] },
+  { methodName: "uppercase", generateClass: () => ["uppercase"] },
+  { methodName: "lowercase", generateClass: () => ["lowercase"] },
+  { methodName: "capitalize", generateClass: () => ["capitalize"] },
+  { methodName: "underline", generateClass: () => ["underline"] },
+  { methodName: "lineThrough", generateClass: () => ["line-through"] },
+  { methodName: "truncate", generateClass: () => ["truncate"] },
   {
-    methodName: "position",
-    classPrefix: "",
+    methodName: "leading",
+    generateClass: (args) => args.length === 1 ? [`leading-${args[0]}`] : [],
+  },
+  {
+    methodName: "tracking",
+    generateClass: (args) => args.length === 1 ? [`tracking-${args[0]}`] : [],
+  },
+  {
+    methodName: "whitespace",
+    generateClass: (args) => args.length === 1 ? [`whitespace-${args[0]}`] : [],
+  },
+
+  // --- Sizing ---
+  {
+    methodName: "w",
+    generateClass: (args) => args.length === 1 ? [`w-${args[0]}`] : [],
+  },
+  {
+    methodName: "h",
+    generateClass: (args) => args.length === 1 ? [`h-${args[0]}`] : [],
+  },
+  {
+    methodName: "maxW",
+    generateClass: (args) => args.length === 1 ? [`max-w-${args[0]}`] : [],
+  },
+  {
+    methodName: "minW",
+    generateClass: (args) => args.length === 1 ? [`min-w-${args[0]}`] : [],
+  },
+  {
+    methodName: "maxH",
+    generateClass: (args) => args.length === 1 ? [`max-h-${args[0]}`] : [],
+  },
+  {
+    methodName: "minH",
+    generateClass: (args) => args.length === 1 ? [`min-h-${args[0]}`] : [],
+  },
+
+  // --- Display & Layout ---
+  {
+    methodName: "display",
     generateClass: (args) => args.length === 1 ? [args[0]] : [],
   },
-  // Z-Index
+  { methodName: "hidden", generateClass: () => ["hidden"] },
   {
-    methodName: "zIndex",
-    classPrefix: "z",
-    generateClass: (args) => args.length === 1 ? [`z-${args[0]}`] : [],
+    methodName: "flex",
+    generateClass: (args) => args.length === 0 ? ["flex"] : [`flex-${args[0]}`],
   },
-  // Overflow
   {
-    methodName: "overflow",
-    classPrefix: "overflow",
+    methodName: "flexDirection",
+    generateClass: (args) => args.length === 1 ? [`flex-${args[0]}`] : [],
+  },
+  {
+    methodName: "flexWrap",
+    generateClass: (args) => args.length === 1 ? [`flex-${args[0]}`] : [],
+  },
+  {
+    methodName: "justifyContent",
+    generateClass: (args) => args.length === 1 ? [`justify-${args[0]}`] : [],
+  },
+  {
+    methodName: "alignItems",
+    generateClass: (args) => args.length === 1 ? [`items-${args[0]}`] : [],
+  },
+  {
+    methodName: "alignSelf",
+    generateClass: (args) => args.length === 1 ? [`self-${args[0]}`] : [],
+  },
+  {
+    methodName: "shrink",
+    generateClass: (args) => args.length === 0 ? ["shrink"] : [`shrink-${args[0]}`],
+  },
+  {
+    methodName: "grow",
+    generateClass: (args) => args.length === 0 ? ["grow"] : [`grow-${args[0]}`],
+  },
+
+  // --- Grid ---
+  { methodName: "grid", generateClass: () => ["grid"] },
+  {
+    methodName: "gridCols",
+    generateClass: (args) => args.length === 1 ? [`grid-cols-${args[0]}`] : [],
+  },
+  {
+    methodName: "gridRows",
+    generateClass: (args) => args.length === 1 ? [`grid-rows-${args[0]}`] : [],
+  },
+  {
+    methodName: "colSpan",
+    generateClass: (args) => args.length === 1 ? [`col-span-${args[0]}`] : [],
+  },
+  {
+    methodName: "aspect",
+    generateClass: (args) => args.length === 1 ? [`aspect-${args[0]}`] : [],
+  },
+
+  // --- Borders ---
+  {
+    methodName: "border",
     generateClass: (args) => {
+      if (args.length === 0) return ["border"];
       if (args.length === 1) {
-        return [`overflow-${args[0]}`];
+        const dir = dirMap[args[0]];
+        return dir !== undefined ? [`border-${dir}`] : [`border-${args[0]}`];
       }
       if (args.length === 2) {
-        return [`overflow-${args[0]}-${args[1]}`];
+        const dir = dirMap[args[0]] || args[0];
+        return [`border-${dir}-${args[1]}`];
       }
       return [];
     },
   },
-  // Bold
   {
-    methodName: "bold",
-    classPrefix: "font",
-    generateClass: () => ["font-bold"],
+    methodName: "rounded",
+    generateClass: (args) => args.length === 0 ? ["rounded"] : [`rounded-${args[0]}`],
   },
-  // Italic
   {
-    methodName: "italic",
-    classPrefix: "",
-    generateClass: () => ["italic"],
+    methodName: "divideX",
+    generateClass: (args) => args.length === 0 ? ["divide-x"] : [`divide-x-${args[0]}`],
   },
-  // Uppercase
   {
-    methodName: "uppercase",
-    classPrefix: "",
-    generateClass: () => ["uppercase"],
+    methodName: "divideY",
+    generateClass: (args) => args.length === 0 ? ["divide-y"] : [`divide-y-${args[0]}`],
   },
-  // Lowercase
-  {
-    methodName: "lowercase",
-    classPrefix: "",
-    generateClass: () => ["lowercase"],
-  },
-  // Capitalize
-  {
-    methodName: "capitalize",
-    classPrefix: "",
-    generateClass: () => ["capitalize"],
-  },
-  // Underline
-  {
-    methodName: "underline",
-    classPrefix: "",
-    generateClass: () => ["underline"],
-  },
-  // Line Through
-  {
-    methodName: "lineThrough",
-    classPrefix: "",
-    generateClass: () => ["line-through"],
-  },
-  // Truncate
-  {
-    methodName: "truncate",
-    classPrefix: "",
-    generateClass: () => ["truncate"],
-  },
-  // Leading (line-height)
-  {
-    methodName: "leading",
-    classPrefix: "leading",
-    generateClass: (args) => args.length === 1 ? [`leading-${args[0]}`] : [],
-  },
-  // Tracking (letter-spacing)
-  {
-    methodName: "tracking",
-    classPrefix: "tracking",
-    generateClass: (args) => args.length === 1 ? [`tracking-${args[0]}`] : [],
-  },
-  // Pointer Events
-  {
-    methodName: "pointerEvents",
-    classPrefix: "pointer-events",
-    generateClass: (args) => args.length === 1 ? [`pointer-events-${args[0]}`] : [],
-  },
-  // Top
-  {
-    methodName: "top",
-    classPrefix: "top",
-    generateClass: (args) => args.length === 1 ? [`top-${args[0]}`] : [],
-  },
-  // Right
-  {
-    methodName: "right",
-    classPrefix: "right",
-    generateClass: (args) => args.length === 1 ? [`right-${args[0]}`] : [],
-  },
-  // Bottom
-  {
-    methodName: "bottom",
-    classPrefix: "bottom",
-    generateClass: (args) => args.length === 1 ? [`bottom-${args[0]}`] : [],
-  },
-  // Left
-  {
-    methodName: "left",
-    classPrefix: "left",
-    generateClass: (args) => args.length === 1 ? [`left-${args[0]}`] : [],
-  },
-  // Inset
-  {
-    methodName: "inset",
-    classPrefix: "inset",
-    generateClass: (args) => args.length === 1 ? [`inset-${args[0]}`] : [],
-  },
-  // Transition
-  {
-    methodName: "transition",
-    classPrefix: "transition",
-    generateClass: (args) => args.length === 0 ? ["transition"] : [`transition-${args[0]}`],
-  },
-  // Duration
-  {
-    methodName: "duration",
-    classPrefix: "duration",
-    generateClass: (args) => args.length === 1 ? [`duration-${args[0]}`] : [],
-  },
-  // Ring
-  {
-    methodName: "ring",
-    classPrefix: "ring",
-    generateClass: (args) => args.length === 0 ? ["ring"] : [`ring-${args[0]}`],
-  },
-  // Ring Color
-  {
-    methodName: "ringColor",
-    classPrefix: "ring",
-    generateClass: (args) => args.length === 1 ? [`ring-${args[0]}`] : [],
-  },
-  // Outline
   {
     methodName: "outline",
-    classPrefix: "outline",
     generateClass: (args) => args.length === 0 ? ["outline"] : [`outline-${args[0]}`],
   },
-  // Scale
+
+  // --- Effects ---
+  {
+    methodName: "shadow",
+    generateClass: (args) => args.length === 0 ? ["shadow"] : [`shadow-${args[0]}`],
+  },
+  {
+    methodName: "opacity",
+    generateClass: (args) => args.length === 1 ? [`opacity-${args[0]}`] : [],
+  },
+  {
+    methodName: "ring",
+    generateClass: (args) => args.length === 0 ? ["ring"] : [`ring-${args[0]}`],
+  },
+
+  // --- Positioning ---
+  {
+    methodName: "position",
+    generateClass: (args) => args.length === 1 ? [args[0]] : [],
+  },
+  {
+    methodName: "inset",
+    generateClass: (args) => args.length === 1 ? [`inset-${args[0]}`] : [],
+  },
+  {
+    methodName: "top",
+    generateClass: (args) => args.length === 1 ? [`top-${args[0]}`] : [],
+  },
+  {
+    methodName: "right",
+    generateClass: (args) => args.length === 1 ? [`right-${args[0]}`] : [],
+  },
+  {
+    methodName: "bottom",
+    generateClass: (args) => args.length === 1 ? [`bottom-${args[0]}`] : [],
+  },
+  {
+    methodName: "left",
+    generateClass: (args) => args.length === 1 ? [`left-${args[0]}`] : [],
+  },
+  {
+    methodName: "zIndex",
+    generateClass: (args) => args.length === 1 ? [`z-${args[0]}`] : [],
+  },
+
+  // --- Overflow ---
+  {
+    methodName: "overflow",
+    generateClass: (args) => {
+      if (args.length === 1) return [`overflow-${args[0]}`];
+      if (args.length === 2) return [`overflow-${args[0]}-${args[1]}`];
+      return [];
+    },
+  },
+  {
+    methodName: "objectFit",
+    generateClass: (args) => args.length === 1 ? [`object-${args[0]}`] : [],
+  },
+
+  // --- Transitions & Animation ---
+  {
+    methodName: "transition",
+    generateClass: (args) => args.length === 0 ? ["transition"] : [`transition-${args[0]}`],
+  },
+  {
+    methodName: "duration",
+    generateClass: (args) => args.length === 1 ? [`duration-${args[0]}`] : [],
+  },
+  {
+    methodName: "animate",
+    generateClass: (args) => args.length === 1 ? [`animate-${args[0]}`] : [],
+  },
+
+  // --- Transforms ---
   {
     methodName: "scale",
-    classPrefix: "scale",
     generateClass: (args) => args.length === 1 ? [`scale-${args[0]}`] : [],
   },
+  {
+    methodName: "rotate",
+    generateClass: (args) => args.length === 1 ? [`rotate-${args[0]}`] : [],
+  },
+  {
+    methodName: "translate",
+    generateClass: (args) => args.length === 2 ? [`translate-${args[0]}-${args[1]}`] : [],
+  },
+
+  // --- Interactivity ---
+  {
+    methodName: "cursor",
+    generateClass: (args) => args.length === 1 ? [`cursor-${args[0]}`] : [],
+  },
+  {
+    methodName: "select",
+    generateClass: (args) => args.length === 1 ? [`select-${args[0]}`] : [],
+  },
+  {
+    methodName: "pointerEvents",
+    generateClass: (args) => args.length === 1 ? [`pointer-events-${args[0]}`] : [],
+  },
+
+  // --- Accessibility ---
+  { methodName: "srOnly", generateClass: () => ["sr-only"] },
 ];
 
 /**
- * Extract arguments from a method call
+ * Extract arguments from a method call.
  * e.g., .flex() -> []
  * e.g., .background("red-500") -> ["red-500"]
  * e.g., .padding("x", "4") -> ["x", "4"]
  */
 function extractMethodArgs(content: string, methodName: string): string[][] {
-  // Match .methodName( ... ) with optional quoted arguments
   const regex = new RegExp(
-    `\\.${methodName}\\s*\\(\\s*` + // .methodName(
-    `(?:` +                         // outer optional group
+    `\\.${methodName}\\s*\\(\\s*` +
+    `(?:` +
       `(?:` +
-        `"([^"]*)"` +              // "arg" (double quotes)
+        `"([^"]*)"` +
         `|` +
-        `'([^']*)'` +             // 'arg' (single quotes)
+        `'([^']*)'` +
       `)` +
-      `(?:\\s*,\\s*` +             // optional comma and next arg
+      `(?:\\s*,\\s*` +
         `(?:"([^"]*)"|'([^']*)')` +
-      `)?` +                        // end optional second arg
-    `)?` +                          // end outer optional group (for zero-arg calls)
-    `\\s*\\)`, // )
+      `)?` +
+    `)?` +
+    `\\s*\\)`,
     "g"
   );
 
@@ -398,8 +356,6 @@ function extractMethodArgs(content: string, methodName: string): string[][] {
 
   while ((match = regex.exec(content)) !== null) {
     const args: string[] = [];
-    // match[1] or match[2] is first arg (double or single quote)
-    // match[3] or match[4] is second arg (double or single quote)
     if (match[1] !== undefined) args.push(match[1]);
     else if (match[2] !== undefined) args.push(match[2]);
 
@@ -413,19 +369,15 @@ function extractMethodArgs(content: string, methodName: string): string[][] {
 }
 
 /**
- * Extract classes from .setClass() and .addClass() calls
+ * Extract classes from .setClass() and .addClass() calls.
  */
 function extractDirectClasses(content: string): string[] {
   const classes: string[] = [];
-
-  // Match .setClass("class1 class2") and .addClass("class1 class2")
   const regex = /\.(setClass|addClass)\s*\(\s*["']([^"']+)["']\s*\)/g;
   let match;
 
   while ((match = regex.exec(content)) !== null) {
-    const classString = match[2];
-    // Split by whitespace and add each class
-    const splitClasses = classString.split(/\s+/).filter(Boolean);
+    const splitClasses = match[2].split(/\s+/).filter(Boolean);
     classes.push(...splitClasses);
   }
 
@@ -433,23 +385,112 @@ function extractDirectClasses(content: string): string[] {
 }
 
 /**
- * Main extractor function for Tailwind CSS
+ * Find the matching closing parenthesis for an opening paren at `startIndex`.
+ */
+function findMatchingParen(content: string, startIndex: number): number {
+  let depth = 1;
+  for (let i = startIndex + 1; i < content.length; i++) {
+    const ch = content[i];
+    if (ch === "(") depth++;
+    else if (ch === ")") {
+      depth--;
+      if (depth === 0) return i;
+    }
+    // Skip string literals
+    else if (ch === '"' || ch === "'") {
+      const quote = ch;
+      i++;
+      while (i < content.length && content[i] !== quote) {
+        if (content[i] === "\\") i++;
+        i++;
+      }
+    }
+    // Skip template literals
+    else if (ch === "`") {
+      i++;
+      while (i < content.length && content[i] !== "`") {
+        if (content[i] === "\\") i++;
+        i++;
+      }
+    }
+  }
+  return -1;
+}
+
+/**
+ * Extract variant-prefixed classes from .on() and .at() calls.
+ * Handles nesting: .on("dark", t => t.on("hover", ...)) => dark:hover:...
+ */
+function extractVariantClasses(content: string, outerPrefix: string = ""): string[] {
+  const classes: string[] = [];
+  // Match .on("variant", or .at("breakpoint",
+  const regex = /\.(on|at)\s*\(\s*["']([^"']+)["']\s*,/g;
+  let match;
+
+  while ((match = regex.exec(content)) !== null) {
+    const variant = match[2];
+    const prefix = outerPrefix ? `${outerPrefix}:${variant}` : variant;
+
+    // Find the opening paren of the .on(/.at( call
+    const parenStart = content.indexOf("(", match.index);
+    if (parenStart === -1) continue;
+
+    const parenEnd = findMatchingParen(content, parenStart);
+    if (parenEnd === -1) continue;
+
+    // Extract the callback body between the parens
+    const callbackBody = content.slice(parenStart + 1, parenEnd);
+
+    // Extract fluent method classes from the callback body
+    for (const pattern of METHOD_PATTERNS) {
+      const argsArray = extractMethodArgs(callbackBody, pattern.methodName);
+      for (const args of argsArray) {
+        const generated = pattern.generateClass(args);
+        for (const cls of generated) {
+          classes.push(`${prefix}:${cls}`);
+        }
+      }
+    }
+
+    // Extract direct addClass/setClass calls inside callback
+    const directClasses = extractDirectClasses(callbackBody);
+    for (const cls of directClasses) {
+      classes.push(`${prefix}:${cls}`);
+    }
+
+    // Recurse for nested .on()/.at() calls
+    const nested = extractVariantClasses(callbackBody, prefix);
+    classes.push(...nested);
+  }
+
+  return classes;
+}
+
+/**
+ * Main extractor function for Tailwind CSS.
  */
 export function fluentHtmlExtractor(content: string): string[] {
   const classes = new Set<string>();
 
   // Extract classes from direct setClass/addClass calls
-  const directClasses = extractDirectClasses(content);
-  directClasses.forEach((cls) => classes.add(cls));
+  for (const cls of extractDirectClasses(content)) {
+    classes.add(cls);
+  }
 
-  // Extract classes from SwiftUI-style method calls
+  // Extract classes from fluent method calls
   for (const pattern of METHOD_PATTERNS) {
     const argsArray = extractMethodArgs(content, pattern.methodName);
-
     for (const args of argsArray) {
-      const generatedClasses = pattern.generateClass(args);
-      generatedClasses.forEach((cls) => classes.add(cls));
+      const generated = pattern.generateClass(args);
+      for (const cls of generated) {
+        classes.add(cls);
+      }
     }
+  }
+
+  // Extract variant-prefixed classes from .on() and .at() calls
+  for (const cls of extractVariantClasses(content)) {
+    classes.add(cls);
   }
 
   return Array.from(classes);
