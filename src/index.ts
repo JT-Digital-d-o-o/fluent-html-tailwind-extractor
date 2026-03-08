@@ -92,6 +92,7 @@ const METHOD_PATTERNS: MethodPattern[] = [
   { methodName: "lowercase", generateClass: () => ["lowercase"] },
   { methodName: "capitalize", generateClass: () => ["capitalize"] },
   { methodName: "underline", generateClass: () => ["underline"] },
+  { methodName: "noUnderline", generateClass: () => ["no-underline"] },
   { methodName: "lineThrough", generateClass: () => ["line-through"] },
   { methodName: "truncate", generateClass: () => ["truncate"] },
   {
