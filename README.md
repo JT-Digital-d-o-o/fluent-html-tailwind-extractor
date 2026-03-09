@@ -1,10 +1,10 @@
 # fluent-html-tailwind-extractor
 
-Tailwind CSS content extractor for fluent-html's SwiftUI-style methods. This extractor tells Tailwind which classes to generate based on your fluent-html code.
+Tailwind CSS content extractor for fluent-html's fluent-styling methods. This extractor tells Tailwind which classes to generate based on your fluent-html code.
 
 ## The Problem
 
-When you use fluent-html's SwiftUI-style API, Tailwind doesn't automatically know which classes to generate:
+When you use fluent-html's fluent-styling API, Tailwind doesn't automatically know which classes to generate:
 
 ```typescript
 // Tailwind can't detect that this generates "bg-red-500 p-4"
@@ -78,7 +78,7 @@ export default config;
 
 ## What It Extracts
 
-The extractor recognizes all fluent-html SwiftUI-style methods:
+The extractor recognizes all fluent-html fluent-styling methods:
 
 ### Method Calls
 
