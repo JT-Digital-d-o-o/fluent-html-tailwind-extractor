@@ -468,10 +468,28 @@ function extractVariantClasses(content: string, outerPrefix: string = ""): strin
 }
 
 /**
+ * Extract default Tailwind class candidates from content.
+ * This mirrors Tailwind's built-in default extractor so that our custom
+ * extractor can fully replace it without losing standard class detection
+ * (e.g., classes in HTML class="..." attributes or template literals).
+ */
+function extractDefaultClasses(content: string): string[] {
+  const matches = content.match(/[:\w\-/.@#[\]]+(?:\([^)]*\))?/g);
+  return matches || [];
+}
+
+/**
  * Main extractor function for Tailwind CSS.
+ * Includes default class candidate extraction so it can fully replace
+ * Tailwind's built-in extractor without losing standard class detection.
  */
 export function fluentHtmlExtractor(content: string): string[] {
   const classes = new Set<string>();
+
+  // Extract default Tailwind class candidates (replaces built-in extractor)
+  for (const cls of extractDefaultClasses(content)) {
+    classes.add(cls);
+  }
 
   // Extract classes from direct setClass/addClass calls
   for (const cls of extractDirectClasses(content)) {
