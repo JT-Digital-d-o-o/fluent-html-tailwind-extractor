@@ -8,6 +8,19 @@ interface MethodPattern {
   generateClass: (args: string[]) => string[];
 }
 
+export interface ExtractorOptions {
+  /** Called when a fluent method call is detected but can't be resolved to a class. */
+  onWarning?: (message: string) => void;
+}
+
+/**
+ * Strip TypeScript `as` cast expressions so they don't break regex matching.
+ * Handles: `as const`, `as SomeType`, `as Type<Generic>`, `as "literal"`
+ */
+function stripTypeCasts(content: string): string {
+  return content.replace(/\s+as\s+(?:const|"[^"]*"|'[^']*'|[A-Za-z_]\w*(?:<[^>]*>)?)/g, "");
+}
+
 const dirMap: Record<string, string> = {
   x: "x", y: "y",
   top: "t", bottom: "b", left: "l", right: "r",
@@ -483,22 +496,26 @@ function extractDefaultClasses(content: string): string[] {
  * Includes default class candidate extraction so it can fully replace
  * Tailwind's built-in extractor without losing standard class detection.
  */
-export function fluentHtmlExtractor(content: string): string[] {
+export function fluentHtmlExtractor(content: string, options?: ExtractorOptions): string[] {
   const classes = new Set<string>();
+  const warn = options?.onWarning;
+
+  // Strip TypeScript `as` casts so they don't break method-call regex matching
+  const stripped = stripTypeCasts(content);
 
   // Extract default Tailwind class candidates (replaces built-in extractor)
-  for (const cls of extractDefaultClasses(content)) {
+  for (const cls of extractDefaultClasses(stripped)) {
     classes.add(cls);
   }
 
   // Extract classes from direct setClass/addClass calls
-  for (const cls of extractDirectClasses(content)) {
+  for (const cls of extractDirectClasses(stripped)) {
     classes.add(cls);
   }
 
   // Extract classes from fluent method calls
   for (const pattern of METHOD_PATTERNS) {
-    const argsArray = extractMethodArgs(content, pattern.methodName);
+    const argsArray = extractMethodArgs(stripped, pattern.methodName);
     for (const args of argsArray) {
       const generated = pattern.generateClass(args);
       for (const cls of generated) {
@@ -507,8 +524,22 @@ export function fluentHtmlExtractor(content: string): string[] {
     }
   }
 
+  // Warn about unresolved fluent method calls
+  if (warn) {
+    for (const pattern of METHOD_PATTERNS) {
+      // Count how many .method( calls exist in the stripped content
+      const callRegex = new RegExp(`\\.${pattern.methodName}\\s*\\(`, "g");
+      const callMatches = [...stripped.matchAll(callRegex)];
+      const extracted = extractMethodArgs(stripped, pattern.methodName);
+      if (callMatches.length > extracted.length) {
+        const unresolved = callMatches.length - extracted.length;
+        warn(`${unresolved} unresolved .${pattern.methodName}() call(s) — arguments may use variables or expressions`);
+      }
+    }
+  }
+
   // Extract variant-prefixed classes from .on() and .at() calls
-  for (const cls of extractVariantClasses(content)) {
+  for (const cls of extractVariantClasses(stripped)) {
     classes.add(cls);
   }
 
@@ -518,3 +549,4 @@ export function fluentHtmlExtractor(content: string): string[] {
 // Default export for CommonJS
 module.exports = fluentHtmlExtractor;
 module.exports.fluentHtmlExtractor = fluentHtmlExtractor;
+module.exports.ExtractorOptions = undefined; // type-only, exported for TS consumers
