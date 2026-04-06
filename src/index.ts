@@ -340,6 +340,73 @@ const METHOD_PATTERNS: MethodPattern[] = [
 
   // --- Accessibility ---
   { methodName: "srOnly", generateClass: () => ["sr-only"] },
+
+  // --- Font Family ---
+  {
+    methodName: "fontFamily",
+    generateClass: (args) => args.length === 1 ? [`font-${args[0]}`] : [],
+  },
+
+  // --- Gradients ---
+  {
+    methodName: "gradientTo",
+    generateClass: (args) => args.length === 1 ? [`bg-gradient-${args[0]}`] : [],
+  },
+  {
+    methodName: "from",
+    generateClass: (args) => args.length === 1 ? [`from-${args[0]}`] : [],
+  },
+  {
+    methodName: "via",
+    generateClass: (args) => args.length === 1 ? [`via-${args[0]}`] : [],
+  },
+  {
+    methodName: "to",
+    generateClass: (args) => args.length === 1 ? [`to-${args[0]}`] : [],
+  },
+
+  // --- Shadow Color ---
+  {
+    methodName: "shadowColor",
+    generateClass: (args) => args.length === 1 ? [`shadow-${args[0]}`] : [],
+  },
+
+  // --- Blur & Backdrop Blur ---
+  {
+    methodName: "blur",
+    generateClass: (args) => args.length === 0 ? ["blur"] : [`blur-${args[0]}`],
+  },
+  {
+    methodName: "backdropBlur",
+    generateClass: (args) => args.length === 0 ? ["backdrop-blur"] : [`backdrop-blur-${args[0]}`],
+  },
+
+  // --- Line Clamp ---
+  {
+    methodName: "lineClamp",
+    generateClass: (args) => args.length === 1 ? [`line-clamp-${args[0]}`] : [],
+  },
+
+  // --- Typography Extras ---
+  { methodName: "antialiased", generateClass: () => ["antialiased"] },
+  { methodName: "tabularNums", generateClass: () => ["tabular-nums"] },
+  {
+    methodName: "underlineOffset",
+    generateClass: (args) => args.length === 1 ? [`underline-offset-${args[0]}`] : [],
+  },
+  { methodName: "breakAll", generateClass: () => ["break-all"] },
+
+  // --- Timing Function ---
+  {
+    methodName: "ease",
+    generateClass: (args) => args.length === 1 ? [`ease-${args[0]}`] : [],
+  },
+
+  // --- Resize ---
+  {
+    methodName: "resize",
+    generateClass: (args) => args.length === 0 ? ["resize"] : [`resize-${args[0]}`],
+  },
 ];
 
 /**

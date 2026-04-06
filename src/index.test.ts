@@ -167,6 +167,49 @@ describe("fluentHtmlExtractor", () => {
     expect(fluentHtmlExtractor('.duration("300")')).toContain("duration-300");
   });
 
+  // --- New methods ---
+
+  it("extracts fontFamily", () => {
+    expect(fluentHtmlExtractor('.fontFamily("mono")')).toContain("font-mono");
+  });
+
+  it("extracts gradient methods", () => {
+    expect(fluentHtmlExtractor('.gradientTo("to-br")')).toContain("bg-gradient-to-br");
+    expect(fluentHtmlExtractor('.from("coral")')).toContain("from-coral");
+    expect(fluentHtmlExtractor('.via("white")')).toContain("via-white");
+    expect(fluentHtmlExtractor('.to("coral-orange")')).toContain("to-coral-orange");
+  });
+
+  it("extracts shadowColor", () => {
+    expect(fluentHtmlExtractor('.shadowColor("coral/30")')).toContain("shadow-coral/30");
+  });
+
+  it("extracts blur and backdropBlur", () => {
+    expect(fluentHtmlExtractor('.blur("3xl")')).toContain("blur-3xl");
+    expect(fluentHtmlExtractor(".blur()")).toContain("blur");
+    expect(fluentHtmlExtractor('.backdropBlur("sm")')).toContain("backdrop-blur-sm");
+  });
+
+  it("extracts lineClamp", () => {
+    expect(fluentHtmlExtractor('.lineClamp("2")')).toContain("line-clamp-2");
+  });
+
+  it("extracts typography extras", () => {
+    expect(fluentHtmlExtractor(".antialiased()")).toContain("antialiased");
+    expect(fluentHtmlExtractor(".tabularNums()")).toContain("tabular-nums");
+    expect(fluentHtmlExtractor('.underlineOffset("2")')).toContain("underline-offset-2");
+    expect(fluentHtmlExtractor(".breakAll()")).toContain("break-all");
+  });
+
+  it("extracts ease", () => {
+    expect(fluentHtmlExtractor('.ease("out")')).toContain("ease-out");
+  });
+
+  it("extracts resize", () => {
+    expect(fluentHtmlExtractor('.resize("y")')).toContain("resize-y");
+    expect(fluentHtmlExtractor(".resize()")).toContain("resize");
+  });
+
   // --- Warnings ---
 
   it("warns about unresolved method calls with variable args", () => {
