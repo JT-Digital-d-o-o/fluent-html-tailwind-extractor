@@ -242,6 +242,13 @@ describe("fluentHtmlExtractor", () => {
     expect(fluentHtmlExtractor('.bottom("px", 30)')).toContain("bottom-[30px]");
   });
 
+  it("extracts arbitrary value with negative numbers", () => {
+    expect(fluentHtmlExtractor('.top("px", -100)')).toContain("top-[-100px]");
+    expect(fluentHtmlExtractor('.right("px", -200)')).toContain("right-[-200px]");
+    expect(fluentHtmlExtractor('.bottom("px", -100)')).toContain("bottom-[-100px]");
+    expect(fluentHtmlExtractor('.left("%", -50)')).toContain("left-[-50%]");
+  });
+
   it("still extracts standard sizing values", () => {
     expect(fluentHtmlExtractor('.w("full")')).toContain("w-full");
     expect(fluentHtmlExtractor('.h("screen")')).toContain("h-screen");
