@@ -27,35 +27,53 @@ const dirMap: Record<string, string> = {
   t: "t", b: "b", l: "l", r: "r",
 };
 
+const UNITS = new Set(["px", "rem", "em", "%", "vh", "vw", "dvh", "svh", "lvh"]);
+
+/** Check if first arg is a CSS unit → generate arbitrary value class */
+function arbitraryOrStandard(prefix: string, args: string[]): string[] {
+  if (args.length === 1) return [`${prefix}-${args[0]}`];
+  if (args.length === 2 && UNITS.has(args[0])) {
+    const unit = args[0] === "%" ? "%" : args[0];
+    return [`${prefix}-[${args[1]}${unit}]`];
+  }
+  return [];
+}
+
+/** Like arbitraryOrStandard but also handles direction (padding/margin) */
+function spacingClass(prefix: string, args: string[]): string[] {
+  if (args.length === 1) return [`${prefix}-${args[0]}`];
+  if (args.length === 2) {
+    if (UNITS.has(args[0])) {
+      const unit = args[0] === "%" ? "%" : args[0];
+      return [`${prefix}-[${args[1]}${unit}]`];
+    }
+    const dir = dirMap[args[0]] || args[0];
+    return [`${prefix}${dir}-${args[1]}`];
+  }
+  return [];
+}
+
 const METHOD_PATTERNS: MethodPattern[] = [
   // --- Spacing ---
   {
     methodName: "padding",
-    generateClass: (args) => {
-      if (args.length === 1) return [`p-${args[0]}`];
-      if (args.length === 2) {
-        const dir = dirMap[args[0]] || args[0];
-        return [`p${dir}-${args[1]}`];
-      }
-      return [];
-    },
+    generateClass: (args) => spacingClass("p", args),
   },
   {
     methodName: "margin",
-    generateClass: (args) => {
-      if (args.length === 1) return [`m-${args[0]}`];
-      if (args.length === 2) {
-        const dir = dirMap[args[0]] || args[0];
-        return [`m${dir}-${args[1]}`];
-      }
-      return [];
-    },
+    generateClass: (args) => spacingClass("m", args),
   },
   {
     methodName: "gap",
     generateClass: (args) => {
       if (args.length === 1) return [`gap-${args[0]}`];
-      if (args.length === 2) return [`gap-${args[0]}-${args[1]}`];
+      if (args.length === 2) {
+        if (UNITS.has(args[0])) {
+          const unit = args[0] === "%" ? "%" : args[0];
+          return [`gap-[${args[1]}${unit}]`];
+        }
+        return [`gap-${args[0]}-${args[1]}`];
+      }
       return [];
     },
   },
@@ -79,7 +97,14 @@ const METHOD_PATTERNS: MethodPattern[] = [
   },
   {
     methodName: "borderColor",
-    generateClass: (args) => args.length === 1 ? [`border-${args[0]}`] : [],
+    generateClass: (args) => {
+      if (args.length === 1) return [`border-${args[0]}`];
+      if (args.length === 2) {
+        const dir = dirMap[args[0]] || args[0];
+        return [`border-${dir}-${args[1]}`];
+      }
+      return [];
+    },
   },
   {
     methodName: "ringColor",
@@ -122,30 +147,12 @@ const METHOD_PATTERNS: MethodPattern[] = [
   },
 
   // --- Sizing ---
-  {
-    methodName: "w",
-    generateClass: (args) => args.length === 1 ? [`w-${args[0]}`] : [],
-  },
-  {
-    methodName: "h",
-    generateClass: (args) => args.length === 1 ? [`h-${args[0]}`] : [],
-  },
-  {
-    methodName: "maxW",
-    generateClass: (args) => args.length === 1 ? [`max-w-${args[0]}`] : [],
-  },
-  {
-    methodName: "minW",
-    generateClass: (args) => args.length === 1 ? [`min-w-${args[0]}`] : [],
-  },
-  {
-    methodName: "maxH",
-    generateClass: (args) => args.length === 1 ? [`max-h-${args[0]}`] : [],
-  },
-  {
-    methodName: "minH",
-    generateClass: (args) => args.length === 1 ? [`min-h-${args[0]}`] : [],
-  },
+  { methodName: "w", generateClass: (args) => arbitraryOrStandard("w", args) },
+  { methodName: "h", generateClass: (args) => arbitraryOrStandard("h", args) },
+  { methodName: "maxW", generateClass: (args) => arbitraryOrStandard("max-w", args) },
+  { methodName: "minW", generateClass: (args) => arbitraryOrStandard("min-w", args) },
+  { methodName: "maxH", generateClass: (args) => arbitraryOrStandard("max-h", args) },
+  { methodName: "minH", generateClass: (args) => arbitraryOrStandard("min-h", args) },
 
   // --- Display & Layout ---
   {
@@ -177,6 +184,7 @@ const METHOD_PATTERNS: MethodPattern[] = [
     methodName: "alignSelf",
     generateClass: (args) => args.length === 1 ? [`self-${args[0]}`] : [],
   },
+  { methodName: "flex1", generateClass: () => ["flex-1"] },
   {
     methodName: "shrink",
     generateClass: (args) => args.length === 0 ? ["shrink"] : [`shrink-${args[0]}`],
@@ -184,6 +192,18 @@ const METHOD_PATTERNS: MethodPattern[] = [
   {
     methodName: "grow",
     generateClass: (args) => args.length === 0 ? ["grow"] : [`grow-${args[0]}`],
+  },
+  {
+    methodName: "placeContent",
+    generateClass: (args) => args.length === 1 ? [`place-content-${args[0]}`] : [],
+  },
+  {
+    methodName: "placeItems",
+    generateClass: (args) => args.length === 1 ? [`place-items-${args[0]}`] : [],
+  },
+  {
+    methodName: "placeSelf",
+    generateClass: (args) => args.length === 1 ? [`place-self-${args[0]}`] : [],
   },
 
   // --- Grid ---
@@ -197,12 +217,28 @@ const METHOD_PATTERNS: MethodPattern[] = [
     generateClass: (args) => args.length === 1 ? [`grid-rows-${args[0]}`] : [],
   },
   {
+    methodName: "gridAutoFlow",
+    generateClass: (args) => args.length === 1 ? [`grid-flow-${args[0]}`] : [],
+  },
+  {
+    methodName: "gridAutoRows",
+    generateClass: (args) => args.length === 1 ? [`auto-rows-${args[0]}`] : [],
+  },
+  {
+    methodName: "gridAutoCols",
+    generateClass: (args) => args.length === 1 ? [`auto-cols-${args[0]}`] : [],
+  },
+  {
     methodName: "colSpan",
     generateClass: (args) => args.length === 1 ? [`col-span-${args[0]}`] : [],
   },
   {
     methodName: "aspect",
     generateClass: (args) => args.length === 1 ? [`aspect-${args[0]}`] : [],
+  },
+  {
+    methodName: "order",
+    generateClass: (args) => args.length === 1 ? [`order-${args[0]}`] : [],
   },
 
   // --- Borders ---
@@ -222,8 +258,17 @@ const METHOD_PATTERNS: MethodPattern[] = [
     },
   },
   {
+    methodName: "borderStyle",
+    generateClass: (args) => args.length === 1 ? [`border-${args[0]}`] : [],
+  },
+  {
     methodName: "rounded",
-    generateClass: (args) => args.length === 0 ? ["rounded"] : [`rounded-${args[0]}`],
+    generateClass: (args) => {
+      if (args.length === 0) return ["rounded"];
+      if (args.length === 1) return [`rounded-${args[0]}`];
+      if (args.length === 2) return [`rounded-${args[0]}-${args[1]}`];
+      return [];
+    },
   },
   {
     methodName: "divideX",
@@ -257,26 +302,11 @@ const METHOD_PATTERNS: MethodPattern[] = [
     methodName: "position",
     generateClass: (args) => args.length === 1 ? [args[0]] : [],
   },
-  {
-    methodName: "inset",
-    generateClass: (args) => args.length === 1 ? [`inset-${args[0]}`] : [],
-  },
-  {
-    methodName: "top",
-    generateClass: (args) => args.length === 1 ? [`top-${args[0]}`] : [],
-  },
-  {
-    methodName: "right",
-    generateClass: (args) => args.length === 1 ? [`right-${args[0]}`] : [],
-  },
-  {
-    methodName: "bottom",
-    generateClass: (args) => args.length === 1 ? [`bottom-${args[0]}`] : [],
-  },
-  {
-    methodName: "left",
-    generateClass: (args) => args.length === 1 ? [`left-${args[0]}`] : [],
-  },
+  { methodName: "inset", generateClass: (args) => arbitraryOrStandard("inset", args) },
+  { methodName: "top", generateClass: (args) => arbitraryOrStandard("top", args) },
+  { methodName: "right", generateClass: (args) => arbitraryOrStandard("right", args) },
+  { methodName: "bottom", generateClass: (args) => arbitraryOrStandard("bottom", args) },
+  { methodName: "left", generateClass: (args) => arbitraryOrStandard("left", args) },
   {
     methodName: "zIndex",
     generateClass: (args) => args.length === 1 ? [`z-${args[0]}`] : [],
@@ -322,6 +352,14 @@ const METHOD_PATTERNS: MethodPattern[] = [
   {
     methodName: "translate",
     generateClass: (args) => args.length === 2 ? [`translate-${args[0]}-${args[1]}`] : [],
+  },
+  {
+    methodName: "skewX",
+    generateClass: (args) => args.length === 1 ? [`skew-x-${args[0]}`] : [],
+  },
+  {
+    methodName: "skewY",
+    generateClass: (args) => args.length === 1 ? [`skew-y-${args[0]}`] : [],
   },
 
   // --- Interactivity ---
@@ -407,6 +445,98 @@ const METHOD_PATTERNS: MethodPattern[] = [
     methodName: "resize",
     generateClass: (args) => args.length === 0 ? ["resize"] : [`resize-${args[0]}`],
   },
+
+  // --- Group / Peer ---
+  {
+    methodName: "group",
+    generateClass: (args) => args.length === 0 ? ["group"] : [`group/${args[0]}`],
+  },
+  {
+    methodName: "peer",
+    generateClass: (args) => args.length === 0 ? ["peer"] : [`peer/${args[0]}`],
+  },
+
+  // --- Filters ---
+  {
+    methodName: "brightness",
+    generateClass: (args) => args.length === 1 ? [`brightness-${args[0]}`] : [],
+  },
+  {
+    methodName: "backdropBrightness",
+    generateClass: (args) => args.length === 1 ? [`backdrop-brightness-${args[0]}`] : [],
+  },
+  {
+    methodName: "contrast",
+    generateClass: (args) => args.length === 1 ? [`contrast-${args[0]}`] : [],
+  },
+  {
+    methodName: "backdropContrast",
+    generateClass: (args) => args.length === 1 ? [`backdrop-contrast-${args[0]}`] : [],
+  },
+  {
+    methodName: "grayscale",
+    generateClass: (args) => args.length === 0 ? ["grayscale"] : [`grayscale-${args[0]}`],
+  },
+  {
+    methodName: "backdropGrayscale",
+    generateClass: (args) => args.length === 0 ? ["backdrop-grayscale"] : [`backdrop-grayscale-${args[0]}`],
+  },
+  {
+    methodName: "hueRotate",
+    generateClass: (args) => args.length === 1 ? [`hue-rotate-${args[0]}`] : [],
+  },
+  {
+    methodName: "backdropHueRotate",
+    generateClass: (args) => args.length === 1 ? [`backdrop-hue-rotate-${args[0]}`] : [],
+  },
+  {
+    methodName: "invert",
+    generateClass: (args) => args.length === 0 ? ["invert"] : [`invert-${args[0]}`],
+  },
+  {
+    methodName: "backdropInvert",
+    generateClass: (args) => args.length === 0 ? ["backdrop-invert"] : [`backdrop-invert-${args[0]}`],
+  },
+  {
+    methodName: "saturate",
+    generateClass: (args) => args.length === 1 ? [`saturate-${args[0]}`] : [],
+  },
+  {
+    methodName: "backdropSaturate",
+    generateClass: (args) => args.length === 1 ? [`backdrop-saturate-${args[0]}`] : [],
+  },
+  {
+    methodName: "sepia",
+    generateClass: (args) => args.length === 0 ? ["sepia"] : [`sepia-${args[0]}`],
+  },
+  {
+    methodName: "backdropSepia",
+    generateClass: (args) => args.length === 0 ? ["backdrop-sepia"] : [`backdrop-sepia-${args[0]}`],
+  },
+
+  // --- Will Change / Overscroll ---
+  {
+    methodName: "willChange",
+    generateClass: (args) => args.length === 1 ? [`will-change-${args[0]}`] : [],
+  },
+  {
+    methodName: "overscroll",
+    generateClass: (args) => {
+      if (args.length === 1) return [`overscroll-${args[0]}`];
+      if (args.length === 2) return [`overscroll-${args[0]}-${args[1]}`];
+      return [];
+    },
+  },
+
+  // --- List Style ---
+  {
+    methodName: "listStyleType",
+    generateClass: (args) => args.length === 1 ? [`list-${args[0]}`] : [],
+  },
+  {
+    methodName: "listStylePosition",
+    generateClass: (args) => args.length === 1 ? [`list-${args[0]}`] : [],
+  },
 ];
 
 /**
@@ -414,6 +544,7 @@ const METHOD_PATTERNS: MethodPattern[] = [
  * e.g., .flex() -> []
  * e.g., .background("red-500") -> ["red-500"]
  * e.g., .padding("x", "4") -> ["x", "4"]
+ * e.g., .w("px", 180) -> ["px", "180"]  (numeric second arg)
  */
 function extractMethodArgs(content: string, methodName: string): string[][] {
   const regex = new RegExp(
@@ -425,7 +556,7 @@ function extractMethodArgs(content: string, methodName: string): string[][] {
         `'([^']*)'` +
       `)` +
       `(?:\\s*,\\s*` +
-        `(?:"([^"]*)"|'([^']*)')` +
+        `(?:"([^"]*)"|'([^']*)'|(\\d+(?:\\.\\d+)?))` +
       `)?` +
     `)?` +
     `\\s*\\)`,
@@ -442,6 +573,7 @@ function extractMethodArgs(content: string, methodName: string): string[][] {
 
     if (match[3] !== undefined) args.push(match[3]);
     else if (match[4] !== undefined) args.push(match[4]);
+    else if (match[5] !== undefined) args.push(match[5]);
 
     results.push(args);
   }

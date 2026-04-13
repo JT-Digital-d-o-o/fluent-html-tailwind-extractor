@@ -210,6 +210,148 @@ describe("fluentHtmlExtractor", () => {
     expect(fluentHtmlExtractor(".resize()")).toContain("resize");
   });
 
+  // --- Unit+amount arbitrary values ---
+
+  it("extracts arbitrary value with px unit", () => {
+    expect(fluentHtmlExtractor('.w("px", 180)')).toContain("w-[180px]");
+    expect(fluentHtmlExtractor('.h("px", 100)')).toContain("h-[100px]");
+  });
+
+  it("extracts arbitrary value with rem unit", () => {
+    expect(fluentHtmlExtractor('.w("rem", 12)')).toContain("w-[12rem]");
+  });
+
+  it("extracts arbitrary value for spacing methods", () => {
+    expect(fluentHtmlExtractor('.padding("px", 16)')).toContain("p-[16px]");
+    expect(fluentHtmlExtractor('.margin("rem", 2)')).toContain("m-[2rem]");
+    expect(fluentHtmlExtractor('.gap("px", 8)')).toContain("gap-[8px]");
+  });
+
+  it("extracts arbitrary value for sizing methods", () => {
+    expect(fluentHtmlExtractor('.maxW("px", 1000)')).toContain("max-w-[1000px]");
+    expect(fluentHtmlExtractor('.minH("vh", 50)')).toContain("min-h-[50vh]");
+    expect(fluentHtmlExtractor('.minW("em", 20)')).toContain("min-w-[20em]");
+    expect(fluentHtmlExtractor('.maxH("px", 600)')).toContain("max-h-[600px]");
+  });
+
+  it("extracts arbitrary value for positioning methods", () => {
+    expect(fluentHtmlExtractor('.top("px", 50)')).toContain("top-[50px]");
+    expect(fluentHtmlExtractor('.inset("rem", 2)')).toContain("inset-[2rem]");
+    expect(fluentHtmlExtractor('.left("px", 10)')).toContain("left-[10px]");
+    expect(fluentHtmlExtractor('.right("px", 20)')).toContain("right-[20px]");
+    expect(fluentHtmlExtractor('.bottom("px", 30)')).toContain("bottom-[30px]");
+  });
+
+  it("still extracts standard sizing values", () => {
+    expect(fluentHtmlExtractor('.w("full")')).toContain("w-full");
+    expect(fluentHtmlExtractor('.h("screen")')).toContain("h-screen");
+  });
+
+  // --- Grid extensions ---
+
+  it("extracts gridAutoFlow", () => {
+    expect(fluentHtmlExtractor('.gridAutoFlow("row")')).toContain("grid-flow-row");
+    expect(fluentHtmlExtractor('.gridAutoFlow("col-dense")')).toContain("grid-flow-col-dense");
+  });
+
+  it("extracts gridAutoRows and gridAutoCols", () => {
+    expect(fluentHtmlExtractor('.gridAutoRows("min")')).toContain("auto-rows-min");
+    expect(fluentHtmlExtractor('.gridAutoCols("fr")')).toContain("auto-cols-fr");
+  });
+
+  // --- Place methods ---
+
+  it("extracts place methods", () => {
+    expect(fluentHtmlExtractor('.placeContent("center")')).toContain("place-content-center");
+    expect(fluentHtmlExtractor('.placeItems("start")')).toContain("place-items-start");
+    expect(fluentHtmlExtractor('.placeSelf("end")')).toContain("place-self-end");
+  });
+
+  // --- Flex/layout extensions ---
+
+  it("extracts flex1", () => {
+    expect(fluentHtmlExtractor(".flex1()")).toContain("flex-1");
+  });
+
+  it("extracts order", () => {
+    expect(fluentHtmlExtractor('.order("first")')).toContain("order-first");
+    expect(fluentHtmlExtractor('.order("2")')).toContain("order-2");
+  });
+
+  // --- Border extensions ---
+
+  it("extracts borderStyle", () => {
+    expect(fluentHtmlExtractor('.borderStyle("dashed")')).toContain("border-dashed");
+    expect(fluentHtmlExtractor('.borderStyle("dotted")')).toContain("border-dotted");
+  });
+
+  it("extracts borderColor with direction", () => {
+    expect(fluentHtmlExtractor('.borderColor("top", "red-500")')).toContain("border-t-red-500");
+    expect(fluentHtmlExtractor('.borderColor("left", "blue-300")')).toContain("border-l-blue-300");
+  });
+
+  it("extracts rounded with corner and value", () => {
+    expect(fluentHtmlExtractor('.rounded("tl", "lg")')).toContain("rounded-tl-lg");
+    expect(fluentHtmlExtractor('.rounded("br", "xl")')).toContain("rounded-br-xl");
+  });
+
+  // --- Transforms ---
+
+  it("extracts skewX and skewY", () => {
+    expect(fluentHtmlExtractor('.skewX("6")')).toContain("skew-x-6");
+    expect(fluentHtmlExtractor('.skewY("12")')).toContain("skew-y-12");
+  });
+
+  // --- Group / Peer ---
+
+  it("extracts group and peer", () => {
+    expect(fluentHtmlExtractor(".group()")).toContain("group");
+    expect(fluentHtmlExtractor('.group("sidebar")')).toContain("group/sidebar");
+    expect(fluentHtmlExtractor(".peer()")).toContain("peer");
+    expect(fluentHtmlExtractor('.peer("input")')).toContain("peer/input");
+  });
+
+  // --- Filters ---
+
+  it("extracts filter methods", () => {
+    expect(fluentHtmlExtractor('.brightness("75")')).toContain("brightness-75");
+    expect(fluentHtmlExtractor('.contrast("125")')).toContain("contrast-125");
+    expect(fluentHtmlExtractor(".grayscale()")).toContain("grayscale");
+    expect(fluentHtmlExtractor('.grayscale("50")')).toContain("grayscale-50");
+    expect(fluentHtmlExtractor('.hueRotate("90")')).toContain("hue-rotate-90");
+    expect(fluentHtmlExtractor(".invert()")).toContain("invert");
+    expect(fluentHtmlExtractor('.saturate("150")')).toContain("saturate-150");
+    expect(fluentHtmlExtractor(".sepia()")).toContain("sepia");
+  });
+
+  it("extracts backdrop filter methods", () => {
+    expect(fluentHtmlExtractor('.backdropBrightness("75")')).toContain("backdrop-brightness-75");
+    expect(fluentHtmlExtractor('.backdropContrast("125")')).toContain("backdrop-contrast-125");
+    expect(fluentHtmlExtractor(".backdropGrayscale()")).toContain("backdrop-grayscale");
+    expect(fluentHtmlExtractor('.backdropHueRotate("180")')).toContain("backdrop-hue-rotate-180");
+    expect(fluentHtmlExtractor(".backdropInvert()")).toContain("backdrop-invert");
+    expect(fluentHtmlExtractor('.backdropSaturate("200")')).toContain("backdrop-saturate-200");
+    expect(fluentHtmlExtractor(".backdropSepia()")).toContain("backdrop-sepia");
+  });
+
+  // --- Will Change / Overscroll ---
+
+  it("extracts willChange", () => {
+    expect(fluentHtmlExtractor('.willChange("transform")')).toContain("will-change-transform");
+  });
+
+  it("extracts overscroll", () => {
+    expect(fluentHtmlExtractor('.overscroll("contain")')).toContain("overscroll-contain");
+    expect(fluentHtmlExtractor('.overscroll("y", "none")')).toContain("overscroll-y-none");
+  });
+
+  // --- List Style ---
+
+  it("extracts listStyleType and listStylePosition", () => {
+    expect(fluentHtmlExtractor('.listStyleType("disc")')).toContain("list-disc");
+    expect(fluentHtmlExtractor('.listStylePosition("inside")')).toContain("list-inside");
+  });
+
   // --- Warnings ---
 
   it("warns about unresolved method calls with variable args", () => {
